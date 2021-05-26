@@ -1,2 +1,1 @@
-# incident-management-ui
-UI dashboard for incident management 
+TODO: SEND LIST OF USERS, STATUS AND OTHER ENUMS FOR SERVER
