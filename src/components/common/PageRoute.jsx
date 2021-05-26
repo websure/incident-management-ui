@@ -1,26 +1,19 @@
 import React, { useEffect, useRef } from 'react';
 import { Route, withRouter, Redirect } from 'react-router-dom';
+import Login from '../login';
 
 const PageRoute = (props) => {
-  const { children, ...rest } = props;
-
-  const auth = false;
-  console.log(props);
+  const { component: Component, path, ...rest } = props;
+  const token = sessionStorage.getItem('token');
   return (
     <Route
       exact
       {...rest}
-      render={() =>
-        auth ? (
-          children
-        ) : (
-          <Redirect
-            to={{
-              pathname: '/login',
-            }}
-          />
-        )
-      }
+      render={(routeProps) => {
+        if (path === '/login') return <Login />;
+        if (token) return <Component {...routeProps} />;
+        return <Redirect to="/login" />;
+      }}
     />
   );
 };

@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from 'react';
 import moment from 'moment';
-import { Grid, Segment, Container, Icon } from 'semantic-ui-react';
+import { Grid, Segment, Container, Icon, Message } from 'semantic-ui-react';
 import { Route, withRouter, Redirect } from 'react-router-dom';
 import IncidentForm from './IncidentForm';
 import useAsync from '../common/hoc/useAsync';
@@ -15,21 +15,27 @@ import IncidentApi from './Api';
 import PageLayout from '../layout/PageLayout';
 import Loader from '../common/Loader';
 
+const UPDATE_MSG = 'Incident updated Successfully.';
+const DELETE_MSG = 'Incident deleted Successfully.';
+
 const IncidentDetails = (props) => {
-  const { history, location, match } = props;
-  const { fetch, loading, data, reset, error } = useAsync();
+  const { history, match } = props;
+  const { fetch, loading, data: asyncData, reset, error } = useAsync();
 
-  const FormRef = useRef(null);
-  // console.log('details page  ', props);
   const [activity, setActivity] = useState([]);
-  console.log('details page ', match);
-
+  const [showSuccessMsg, setShowSuccessMsg] = useState(false);
+  const [data, setData] = useState(asyncData);
+  const [msgTxt, setMsgTxt] = useState(UPDATE_MSG);
+  const { id } = match?.params;
   useEffect(() => {
-    const { id } = match?.params;
     if (id) {
       fetch(IncidentApi.getIncidentDetails(id));
     }
   }, [match?.params?.id]);
+
+  useEffect(() => {
+    setData(asyncData);
+  }, [asyncData]);
 
   useEffect(() => {
     if (data && Object.keys(data).length > 0) {
@@ -58,25 +64,46 @@ const IncidentDetails = (props) => {
       console.log('data ', activityArr);
       setActivity(activityArr);
     }
-    if (error) {
-      console.log('error ', error);
-    }
-  }, [data, error]);
+  }, [data]);
 
-  const formValues = (values) => {
-    console.log(values);
+  const updateValues = (values) => {
+    const { acknowledge, assignee, description, status, title, type } = values;
+    console.log(acknowledge, assignee, description, status, title, type);
+    setMsgTxt(UPDATE_MSG);
+    fetch(
+      IncidentApi.updateIncident(id, {
+        acknowledge,
+        assignee,
+        description,
+        status,
+        title,
+        type,
+      }).then((res) => {
+        setShowSuccessMsg(true);
+        setData(res);
+        setTimeout(() => {
+          setShowSuccessMsg(false);
+        }, 5000);
+      }),
+    );
   };
+
   const deleteIncident = () => {
-    console.log(data.id);
+    setMsgTxt(DELETE_MSG);
+    IncidentApi.deleteIncident(data.id).then((res) => {
+      setShowSuccessMsg(true);
+      setTimeout(() => {
+        setShowSuccessMsg(false);
+        history.goBack();
+      }, 3000);
+    });
   };
-
-  // style={{ flexDirection: 'column' }}
 
   const showActivities = activity.map((act, i) => (
     <>
       <Segment key={`a_${act.timestamp}`} style={{ margin: 0 }}>
         <p>
-          {act.formattedTimestamp} - {act.msg} on
+          {act.formattedTimestamp} - {act.msg}
         </p>
       </Segment>
       {i !== activity.length - 1 && (
@@ -94,6 +121,7 @@ const IncidentDetails = (props) => {
 
   return (
     <PageLayout>
+      {showSuccessMsg && <Message success content={msgTxt} />}
       <Grid padded data-id="detailsPage">
         <Grid.Row columns={2}>
           <Grid.Column largeScreen={10} computer={10} mobile={16}>
@@ -101,10 +129,11 @@ const IncidentDetails = (props) => {
             <ErrorBoundary type={ERROR_TYPES.APP_LEVEL}>
               {data && (
                 <IncidentForm
-                  ref={FormRef}
-                  formValues={formValues}
+                  formValues={updateValues}
                   incidentDetails={data}
                   deleteIncident={deleteIncident}
+                  loading={loading}
+                  error={error}
                 />
               )}
             </ErrorBoundary>
@@ -114,7 +143,7 @@ const IncidentDetails = (props) => {
             <ErrorBoundary type={ERROR_TYPES.APP_LEVEL}>
               <Segment
                 style={{
-                  maxHeight: window.innerHeight - 100,
+                  maxHeight: window.innerHeight - 180,
                   overflow: 'auto',
                 }}
               >

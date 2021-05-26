@@ -41,6 +41,8 @@ const IncidentForm = forwardRef(
       history,
       location,
       deleteIncident,
+      loading = false,
+      error = false,
     },
     ref,
   ) => {
@@ -112,7 +114,7 @@ const IncidentForm = forwardRef(
       });
     };
 
-    const showListPage = () => history.push('/');
+    const showListPage = () => history.push('/incident');
 
     const deleteInc = () => {
       console.log(incidentDetails.id);
@@ -252,7 +254,12 @@ const IncidentForm = forwardRef(
                   }}
                   type="click"
                 >
-                  <Button primary title="Save Incident" type="submit">
+                  <Button
+                    primary
+                    title="Save Incident"
+                    type="submit"
+                    loading={loading}
+                  >
                     Save Incident
                   </Button>
                 </WithAudit>

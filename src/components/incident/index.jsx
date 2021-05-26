@@ -7,24 +7,11 @@ import PageLayout from '../layout/PageLayout';
 import IncidentTable from './IncidentTable';
 
 const Incident = (props) => {
-  console.log('home ', props);
   const { history } = props;
   return (
     <PageLayout>
-      <ErrorBoundary type={ERROR_TYPES.APP_LEVEL}>
-        <IncidentTable />
-      </ErrorBoundary>
-      <Link to="/incident/60ab34635795305cb0de1d6d">details</Link>
+      <IncidentTable {...props} />
     </PageLayout>
-    // <Grid padded data-id="homePage">
-    //   <ErrorBoundary type={ERROR_TYPES.APP_LEVEL}>
-    //     <Header />
-    //   </ErrorBoundary>
-    //   <Grid.Row>
-
-    //   </Grid.Row>
-
-    // </Grid>
   );
 };
 

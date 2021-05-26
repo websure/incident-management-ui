@@ -86,7 +86,8 @@ const TABLEDATA = [
     created_on: '2021-05-23T10:07:47.506Z',
   },
 ];
-const IncidentTable = ({ history }) => {
+const IncidentTable = (props) => {
+  const { history, reloadTable } = props;
   const DefaultProps = {
     max: 5,
     start_index: 0,
@@ -95,6 +96,7 @@ const IncidentTable = ({ history }) => {
     orderby: 'desc',
   };
 
+  console.log('table demo ', props);
   const TableRef = useRef();
 
   const { fetch, loading, data, reset, error } = useAsync();
@@ -119,13 +121,10 @@ const IncidentTable = ({ history }) => {
     if (!apiTriggered) {
       fetch(
         IncidentApi.getIncidentList(params)
-          .then(
-            (res) => {
-              console.log('table response ', res, tableData, sorting);
-              constructTableData(res, newFetch);
-            },
-            (err) => console.log(err),
-          )
+          .then((res) => {
+            console.log('table response ', res, tableData, sorting);
+            constructTableData(res, newFetch);
+          })
           .then(() => setApiTriggered(false)),
       );
     }
@@ -134,15 +133,19 @@ const IncidentTable = ({ history }) => {
     fetchTableData();
   }, []);
 
-  const resetTable = () =>
-    setTableData({
-      data: [],
-    });
+  useEffect(() => {
+    if (reloadTable) fetchTableData({}, true);
+  }, [reloadTable]);
+
+  useEffect(() => {
+    console.log('sorting useEffect   ', sorting);
+  }, [sorting]);
 
   const setFilter = (sortby) => {
-    const { direction } = tableData;
+    const { direction } = sorting;
     const orderby = direction === 'asc' ? 'desc' : 'asc';
 
+    console.log('setFilter ', sorting);
     setSorting({ column: sortby, direction: orderby });
     // resetTable();
     fetchTableData({ sortby, orderby }, true);
@@ -200,6 +203,7 @@ const IncidentTable = ({ history }) => {
         </Table.Row>
       ),
     );
+  console.log('table error ', error);
   return (
     <Visibility fireOnMount onUpdate={handleUpdate}>
       <Table sortable celled fixed selectable ref={TableRef}>
