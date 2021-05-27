@@ -6,13 +6,12 @@ import Header from './Header';
 import PageLayout from '../layout/PageLayout';
 import IncidentTable from './IncidentTable';
 
-const Incident = (props) => {
-  const { history } = props;
-  return (
-    <PageLayout>
+const Incident = (props) => (
+  <PageLayout>
+    <ErrorBoundary type={ERROR_TYPES.APP_LEVEL}>
       <IncidentTable {...props} />
-    </PageLayout>
-  );
-};
+    </ErrorBoundary>
+  </PageLayout>
+);
 
 export default withRouter(Incident);

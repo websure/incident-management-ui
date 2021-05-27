@@ -10,16 +10,8 @@ const defaultSettings = {
 };
 const instance = axios.create({ ...defaultSettings });
 
-// const getToken = () => {
-//   let user = sessionStorage.getItem('currentUser');
-//   user = user && JSON.parse(user)
-//   Token = user?.token || null
-// }
-
 instance.interceptors.request.use(
-  (config) =>
-  /* Add logic to add/update request headers */
-  ({
+  (config) => ({
     ...config,
     headers: {
       ...config.headers,

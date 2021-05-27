@@ -19,75 +19,14 @@ import IncidentApi from './Api';
 import useAsync from '../common/hoc/useAsync';
 import { INCIDENT_TYPE, STATUS_COLOR } from './constants';
 import Loader from '../common/Loader';
+import useTableReload from '../common/hoc/useTableReload';
 
 const TABLE_SORT_ICON = {
   asc: 'ascending',
   desc: 'descending',
 };
 
-const TABLEDATA = [
-  {
-    id: '60aafe3079d3ae59ecc71c6b',
-    created_by: 'admin',
-    description: 'desc text',
-    status: 'analysis',
-    title: 'updating  incident',
-    assignee: 'user1',
-    acknowledge: 'false',
-    type: 'bug',
-    updated_on: '2021-05-24T03:27:26.369Z',
-    created_on: '2021-05-24T01:15:28.283Z',
-  },
-  {
-    id: '60aa5c4dd69b37127c5c746c',
-    created_by: 'admin',
-    description: '',
-    status: 'analysis',
-    title: '2nd incident',
-    assignee: 'user1',
-    acknowledge: 'false',
-    type: 'bug',
-    updated_on: '2021-05-23T13:44:45.615Z',
-    created_on: '2021-05-23T13:44:45.615Z',
-  },
-  {
-    id: '60aa4a48803ccc36e436ef42',
-    created_by: 'admin',
-    description: '',
-    status: 'analysis',
-    title: '1st incident',
-    assignee: '',
-    acknowledge: 'false',
-    type: 'bug',
-    updated_on: '2021-05-23T12:27:52.151Z',
-    created_on: '2021-05-23T12:27:52.151Z',
-  },
-  {
-    id: '60aa4921cf08e61568e3521e',
-    created_by: 'admin',
-    description: '',
-    status: 'analysis',
-    title: '1st incident',
-    assignee: '',
-    acknowledge: 'false',
-    type: 'bug',
-    updated_on: '2021-05-23T12:22:57.360Z',
-    created_on: '2021-05-23T12:22:57.360Z',
-  },
-  {
-    created_by: 'admin',
-    description: '',
-    status: 'analysis',
-    title: '1st incident',
-    assignee: '',
-    acknowledge: 'false',
-    type: 'bug',
-    updated_on: '2021-05-23T10:07:47.506Z',
-    created_on: '2021-05-23T10:07:47.506Z',
-  },
-];
-const IncidentTable = (props) => {
-  const { history, reloadTable } = props;
+const IncidentTable = ({ history }) => {
   const DefaultProps = {
     max: 5,
     start_index: 0,
@@ -96,9 +35,8 @@ const IncidentTable = (props) => {
     orderby: 'desc',
   };
 
-  console.log('table demo ', props);
   const TableRef = useRef();
-
+  const { reloadTable } = useTableReload();
   const { fetch, loading, data, reset, error } = useAsync();
   const [apiFilter, setApiFilter] = useState(DefaultProps);
   const [apiTriggered, setApiTriggered] = useState(false);
@@ -122,7 +60,6 @@ const IncidentTable = (props) => {
       fetch(
         IncidentApi.getIncidentList(params)
           .then((res) => {
-            console.log('table response ', res, tableData, sorting);
             constructTableData(res, newFetch);
           })
           .then(() => setApiTriggered(false)),
@@ -203,7 +140,6 @@ const IncidentTable = (props) => {
         </Table.Row>
       ),
     );
-  console.log('table error ', error);
   return (
     <Visibility fireOnMount onUpdate={handleUpdate}>
       <Table sortable celled fixed selectable ref={TableRef}>
@@ -227,7 +163,7 @@ const IncidentTable = (props) => {
               }
               onClick={() => setFilter('status')}
             >
-              status
+              Status
             </Table.HeaderCell>
             <Table.HeaderCell
               sorted={
@@ -265,6 +201,11 @@ const IncidentTable = (props) => {
       </Table>
       {loading && <Loader />}
       {error && <span>Error in fetching Incident List</span>}
+      {!loading &&
+        !error &&
+        (!tableData.data || tableData?.data?.length === 0) && (
+          <h5> No data found</h5>
+        )}
     </Visibility>
   );
 };

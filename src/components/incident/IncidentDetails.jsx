@@ -4,6 +4,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
   useRef,
+  useContext,
 } from 'react';
 import moment from 'moment';
 import { Grid, Segment, Container, Icon, Message } from 'semantic-ui-react';
@@ -14,6 +15,7 @@ import ErrorBoundary, { ERROR_TYPES } from '../common/ErrorBoundary';
 import IncidentApi from './Api';
 import PageLayout from '../layout/PageLayout';
 import Loader from '../common/Loader';
+import { AppStateContext } from '../../store/AppStore';
 
 const UPDATE_MSG = 'Incident updated Successfully.';
 const DELETE_MSG = 'Incident deleted Successfully.';
@@ -21,11 +23,12 @@ const DELETE_MSG = 'Incident deleted Successfully.';
 const IncidentDetails = (props) => {
   const { history, match } = props;
   const { fetch, loading, data: asyncData, reset, error } = useAsync();
+  const { updateData } = useContext(AppStateContext);
 
   const [activity, setActivity] = useState([]);
   const [showSuccessMsg, setShowSuccessMsg] = useState(false);
   const [data, setData] = useState(asyncData);
-  const [msgTxt, setMsgTxt] = useState(UPDATE_MSG);
+
   const { id } = match?.params;
   useEffect(() => {
     if (id) {
@@ -39,7 +42,7 @@ const IncidentDetails = (props) => {
 
   useEffect(() => {
     if (data && Object.keys(data).length > 0) {
-      console.log('response details', data);
+      // console.log('------data  ', data);
       const {
         incident_assignee: assigneeActivity,
         incident_status: statusActivity,
@@ -48,28 +51,27 @@ const IncidentDetails = (props) => {
         ...assigneeActivity.map((v) => ({
           ...v,
           formattedTimestamp: moment(v.timestamp).format('DD-MM-YYYY HH:MM:SS'),
-          msg: `Incident assigned ${v.from && 'from'} ${v.from} to ${v.to} `,
+          msg: `Incident assigned ${v.from && 'from'} ${v.from} ${v.to && 'to'
+            } ${v.to}`,
         })),
         ...statusActivity.map((v) => ({
           ...v,
           formattedTimestamp: moment(v.timestamp).format('DD-MM-YYYY HH:MM:SS'),
-          msg: `Incident status updated ${v.from && 'from'} ${v.from} to ${v.to
-            } `,
+          msg: `Incident status updated ${v.from && 'from'} ${v.from} ${v.to && 'to'
+            } ${v.to}`,
         })),
       ].sort((a, b) => {
         if (a.formattedTimestamp > b.formattedTimestamp) return -1;
         if (a.formattedTimestamp < b.formattedTimestamp) return 1;
         return 0;
       });
-      console.log('data ', activityArr);
       setActivity(activityArr);
     }
   }, [data]);
 
   const updateValues = (values) => {
     const { acknowledge, assignee, description, status, title, type } = values;
-    console.log(acknowledge, assignee, description, status, title, type);
-    setMsgTxt(UPDATE_MSG);
+
     fetch(
       IncidentApi.updateIncident(id, {
         acknowledge,
@@ -79,23 +81,26 @@ const IncidentDetails = (props) => {
         title,
         type,
       }).then((res) => {
-        setShowSuccessMsg(true);
+        updateData({
+          successMsg: {
+            msg: UPDATE_MSG,
+            show: true,
+          },
+        });
         setData(res);
-        setTimeout(() => {
-          setShowSuccessMsg(false);
-        }, 5000);
       }),
     );
   };
 
   const deleteIncident = () => {
-    setMsgTxt(DELETE_MSG);
     IncidentApi.deleteIncident(data.id).then((res) => {
-      setShowSuccessMsg(true);
-      setTimeout(() => {
-        setShowSuccessMsg(false);
-        history.goBack();
-      }, 3000);
+      updateData({
+        successMsg: {
+          msg: DELETE_MSG,
+          show: true,
+        },
+      });
+      history.goBack();
     });
   };
 
@@ -121,7 +126,6 @@ const IncidentDetails = (props) => {
 
   return (
     <PageLayout>
-      {showSuccessMsg && <Message success content={msgTxt} />}
       <Grid padded data-id="detailsPage">
         <Grid.Row columns={2}>
           <Grid.Column largeScreen={10} computer={10} mobile={16}>
@@ -147,7 +151,9 @@ const IncidentDetails = (props) => {
                   overflow: 'auto',
                 }}
               >
-                {activity.length > 0 && <Container>{showActivities}</Container>}
+                {activity.length > 0 && (
+                  <Container id="activitySection">{showActivities}</Container>
+                )}
               </Segment>
             </ErrorBoundary>
           </Grid.Column>

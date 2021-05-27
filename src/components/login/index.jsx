@@ -4,6 +4,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
   useRef,
+  useContext,
 } from 'react';
 import {
   Grid,
@@ -30,17 +31,16 @@ const Login = ({ history }) => {
   const { fetch, loading, data, reset, error } = useAsync();
 
   const submit = () => {
-
-    fetch(UserApi.login(formDetails))
+    fetch(UserApi.login(formDetails));
   };
 
   useEffect(() => {
     if (data && Object.keys(data).length > 0) {
-      sessionStorage.setItem('currentUser', JSON.stringify(data))
-      sessionStorage.setItem('token', data.token)
-      history.push('/incident')
+      sessionStorage.setItem('currentUser', JSON.stringify(data));
+      sessionStorage.setItem('token', data.token);
+      history.push('/incident');
     }
-  }, [data])
+  }, [data]);
 
   const handleChange = ({ name, value }) => {
     // error && reset()
@@ -73,7 +73,7 @@ const Login = ({ history }) => {
                 content="Either User Name or Password is incorrect."
               />
             )}
-            <Form onSubmit={submit} width="100%">
+            <Form onSubmit={submit} className="loginForm">
               <Input
                 fluid
                 label="User Name"
@@ -106,8 +106,7 @@ const Login = ({ history }) => {
                 loading={loading}
                 style={{
                   display: 'table',
-                  marginRight: 'auto',
-                  marginLeft: 'auto',
+                  margin: '10px auto',
                 }}
               >
                 Login

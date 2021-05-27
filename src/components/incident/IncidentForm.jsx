@@ -57,7 +57,6 @@ const IncidentForm = forwardRef(
       type: '',
     };
 
-    console.log('form ', incidentDetails);
     /* states */
     const [formMode, setFormMode] = useState(
       incidentDetails?.incident ? FORM_MODE.EDIT : FORM_MODE.NEW,
@@ -105,7 +104,6 @@ const IncidentForm = forwardRef(
       formValues(formDetails);
     };
 
-    console.log('formMode ', formMode);
     const handleChange = ({ name, value }) => {
       // error && reset()
       setFormDetails({
@@ -117,14 +115,13 @@ const IncidentForm = forwardRef(
     const showListPage = () => history.push('/incident');
 
     const deleteInc = () => {
-      console.log(incidentDetails.id);
       setShowPopup(false);
       deleteIncident();
     };
 
     return (
       <>
-        <Form ref={FormRef} onSubmit={onSubmit} width="100%">
+        <Form ref={FormRef} onSubmit={onSubmit} data-id="incidentForm">
           <Dropdown
             fluid
             label="Incident Type"
@@ -215,7 +212,7 @@ const IncidentForm = forwardRef(
           </SemanticForm.Group>
           <div
             style={{
-              padding: '1.5rem .5rem',
+              padding: '2rem .5rem',
             }}
           >
             {formMode === FORM_MODE.NEW && (

@@ -1,34 +1,66 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import { Grid, Button, Modal, Form, Icon, Message } from 'semantic-ui-react';
 import { Route, withRouter, Redirect, Link } from 'react-router-dom';
 import IncidentForm from './IncidentForm';
 import IncidentApi from './Api';
 import useAsync from '../common/hoc/useAsync';
+import useTableReload from '../common/hoc/useTableReload';
+import { AppStateContext } from '../../store/AppStore';
 
 const MsgTxt = 'Incident created successfully';
-const Header = ({ history, location, match, reloadTable }) => {
+
+const Header = ({ history, location, match }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [showSuccessMsg, setShowSuccessMsg] = useState(false);
+  const [infoMsg, setInfoMsg] = useState(MsgTxt);
   const FormRef = useRef(null);
+  const { StoreData, updateData } = useContext(AppStateContext);
+  const { successMsg, errorMsg } = StoreData;
+
   const { fetch, loading, data, reset, error } = useAsync();
+  const { updateTableState } = useTableReload();
+
+  useEffect(() => {
+    const { msg, show: ShowSuccessInfo } = successMsg;
+    setShowSuccessMsg(ShowSuccessInfo);
+    const { msg: errMsg, show: ShowErrorInfo } = errorMsg;
+    setShowSuccessMsg(ShowSuccessInfo);
+    setInfoMsg(msg || errMsg || MsgTxt);
+  }, [successMsg, errorMsg]);
+
+  const closeMessInfo = () => {
+    setTimeout(() => {
+      updateData({
+        successMsg: {
+          msg: '',
+          show: false,
+        },
+      });
+      setShowSuccessMsg(false);
+    }, 3000);
+  };
+
+  useEffect(() => {
+    if (showSuccessMsg) {
+      closeMessInfo();
+    }
+  }, [showSuccessMsg]);
+
   const closePopup = () => {
     setShowPopup(false);
   };
 
   const formValues = (values) => {
-    console.log(values);
     fetch(
-      IncidentApi.createIncident(values).then((res) => {
-        console.log('create   ', res, location, match);
-        setShowSuccessMsg(true);
-
-        setTimeout(() => {
-          setShowSuccessMsg(false);
-          closePopup();
-        }, 3000);
-
-        reloadTable(true);
-        // history.push('/incident');
+      IncidentApi.createIncident(values).then(() => {
+        closePopup();
+        updateTableState(true);
+        updateData({
+          successMsg: {
+            msg: 'Incident Created Successfully',
+            show: true,
+          },
+        });
       }),
     );
   };
@@ -45,7 +77,21 @@ const Header = ({ history, location, match, reloadTable }) => {
     >
       <Grid.Row textAlign="left" verticalAlign="middle">
         <Grid.Column width={12}>
-          <h4>Welcome to Incident Management </h4>
+          <h4>
+            Welcome to Incident Management
+            {showSuccessMsg && (
+              <Message
+                compact
+                floating
+                success
+                content={infoMsg}
+                size="small"
+                style={{
+                  marginLeft: '2rem',
+                }}
+              />
+            )}
+          </h4>
         </Grid.Column>
         <Grid.Column floated="right" width={3}>
           <Button
@@ -80,7 +126,6 @@ const Header = ({ history, location, match, reloadTable }) => {
         >
           <Modal.Header>Add Incident</Modal.Header>
           <Modal.Content>
-            {showSuccessMsg && <Message success content={MsgTxt} />}
             <IncidentForm
               ref={FormRef}
               formValues={formValues}

@@ -20,7 +20,6 @@ const useAsync = () => {
     async
       .then((res) => {
         if (res) {
-          console.log('response async', res);
           setData(res);
         }
       })

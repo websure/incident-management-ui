@@ -26,8 +26,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "test": "react-scripts test --env=jest-environment-jsdom-fifteen --test-runner='jest-circus/runner'",
+    "test:coverage": "npm run test -- --coverage",
     "lint": "eslint \"src/**/*.{js,jsx,json,tx,tsx}\" ",
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --write ."

@@ -30,3 +30,8 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.loginForm .field {
+  width: 100% !important;
+  margin-bottom: 10px;
+}
