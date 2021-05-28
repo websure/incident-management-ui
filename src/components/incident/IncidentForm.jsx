@@ -1,3 +1,9 @@
+/**
+ * Incident Form
+ * Populates controls for Incident creation.
+ * Prepopulates controls for incident Update.
+ * Return updated values to consumer
+ */
 import React, {
   useEffect,
   useState,
@@ -5,7 +11,7 @@ import React, {
   useImperativeHandle,
   useRef,
 } from 'react';
-import { Route, withRouter, Redirect } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import {
   Grid,
   Button,
@@ -56,12 +62,14 @@ const IncidentForm = forwardRef(
       acknowledge: false,
       type: '',
     };
+    let currUSer = sessionStorage.getItem('currentUser') || null;
+    currUSer = JSON.parse(currUSer);
+    const isAdmin = currUSer?.userid === 'admin';
 
     /* states */
     const [formMode, setFormMode] = useState(
       incidentDetails?.incident ? FORM_MODE.EDIT : FORM_MODE.NEW,
     );
-
     const [showPopup, setShowPopup] = useState(false);
     /* form states */
     const [formDetails, setFormDetails] = useState(DefaultFormStates);
@@ -94,10 +102,8 @@ const IncidentForm = forwardRef(
       value: v,
     }));
 
-    const getStates = formDetails;
-
     useImperativeHandle(ref, () => ({
-      incidentValues: getStates,
+      incidentValues: formDetails,
     }));
 
     const onSubmit = () => {
@@ -105,7 +111,6 @@ const IncidentForm = forwardRef(
     };
 
     const handleChange = ({ name, value }) => {
-      // error && reset()
       setFormDetails({
         ...formDetails,
         [name]: value,
@@ -116,9 +121,66 @@ const IncidentForm = forwardRef(
 
     const deleteInc = () => {
       setShowPopup(false);
-      deleteIncident();
+      deleteIncident(formDetails.id);
     };
 
+    const showCreateActionBtns = (
+      <>
+        {isAdmin && (
+          <WithAudit
+            dataid="createIncidentButton"
+            dataaudit={{
+              desc: 'creating new Incident',
+            }}
+            type="click"
+          >
+            <Button primary floated="right" title="Add Incident" type="submit">
+              Create Incident
+            </Button>
+          </WithAudit>
+        )}
+
+        <Button floated="right" title="Cancel" onClick={closePopup}>
+          Cancel
+        </Button>
+      </>
+    );
+
+    const showEditActionBtns = (
+      <>
+        <Button title="Cancel" onClick={showListPage}>
+          Go back
+        </Button>
+        <WithAudit
+          dataid="SaveIncidentButton"
+          dataaudit={{
+            desc: 'Updating Incident',
+          }}
+          type="click"
+        >
+          <Button primary title="Save Incident" type="submit" loading={loading}>
+            Save Incident
+          </Button>
+        </WithAudit>
+        {isAdmin && (
+          <WithAudit
+            dataid="DeleteIncidentButton"
+            dataaudit={{
+              desc: 'Delete Incident',
+            }}
+            type="click"
+          >
+            <Button
+              title="Delete Incident"
+              color="red"
+              onClick={() => setShowPopup(true)}
+            >
+              Delete
+            </Button>
+          </WithAudit>
+        )}
+      </>
+    );
     return (
       <>
         <Form ref={FormRef} onSubmit={onSubmit} data-id="incidentForm">
@@ -215,68 +277,9 @@ const IncidentForm = forwardRef(
               padding: '2rem .5rem',
             }}
           >
-            {formMode === FORM_MODE.NEW && (
-              <>
-                <WithAudit
-                  dataid="createIncidentButton"
-                  dataaudit={{
-                    desc: 'creating new Incident',
-                  }}
-                  type="click"
-                >
-                  <Button
-                    primary
-                    floated="right"
-                    title="Add Incident"
-                    type="submit"
-                  >
-                    Create Incident
-                  </Button>
-                </WithAudit>
-                <Button floated="right" title="Cancel" onClick={closePopup}>
-                  Cancel
-                </Button>
-              </>
-            )}
+            {formMode === FORM_MODE.NEW && showCreateActionBtns}
 
-            {formMode === FORM_MODE.EDIT && (
-              <>
-                <Button title="Cancel" onClick={showListPage}>
-                  Go back
-                </Button>
-                <WithAudit
-                  dataid="SaveIncidentButton"
-                  dataaudit={{
-                    desc: 'Updating Incident',
-                  }}
-                  type="click"
-                >
-                  <Button
-                    primary
-                    title="Save Incident"
-                    type="submit"
-                    loading={loading}
-                  >
-                    Save Incident
-                  </Button>
-                </WithAudit>
-                <WithAudit
-                  dataid="DeleteIncidentButton"
-                  dataaudit={{
-                    desc: 'Delete Incident',
-                  }}
-                  type="click"
-                >
-                  <Button
-                    title="Delete Incident"
-                    color="red"
-                    onClick={() => setShowPopup(true)}
-                  >
-                    Delete
-                  </Button>
-                </WithAudit>
-              </>
-            )}
+            {formMode === FORM_MODE.EDIT && showEditActionBtns}
           </div>
         </Form>
 

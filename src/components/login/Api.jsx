@@ -1,5 +1,5 @@
 /*
-  Api methods for Videos
+  Api methods for User
 */
 import Api from '../../services/Api';
 

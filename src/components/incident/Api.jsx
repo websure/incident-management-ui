@@ -1,5 +1,5 @@
 /*
-  Api methods for Videos
+  Api methods for Incident
 */
 import Api from '../../services/Api';
 

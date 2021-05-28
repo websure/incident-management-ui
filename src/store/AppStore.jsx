@@ -1,9 +1,8 @@
 /*
-  React Context Api
-  Fetches video list from the server
-  on new video upload, updates the video list
+  React Context Api for State Provider
+  updates and dispatches success/error Messages
 */
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useState } from 'react';
 
 export const AppStateContext = createContext();
 

@@ -1,8 +1,4 @@
 import React from 'react';
-import userEvent from '@testing-library/user-event';
-// import { render } from '@testing-library/react';
-import { createMemoryHistory } from 'history';
-import { Router, Route } from 'react-router-dom';
 import {
   render,
   screen,
@@ -17,6 +13,7 @@ const pathDetails = {
   route: '/incident/ABC123',
   path: '/incident/:id',
 };
+
 describe('Test Incident Details Page', () => {
   test('Incident details page is rendered ', () => {
     jest
@@ -25,6 +22,7 @@ describe('Test Incident Details Page', () => {
     render(<IncidentDetails />, pathDetails);
     expect(screen.getByText('Incident Details')).toBeInTheDocument();
   });
+
   test('Incident details page - Activity section is rendered ', () => {
     jest
       .spyOn(IncidentApi, 'getIncidentDetails')
@@ -40,6 +38,7 @@ describe('Test Incident Details Page', () => {
     render(<IncidentDetails />, pathDetails);
     expect(screen.getByText('Incident Activity')).toBeInTheDocument();
   });
+
   test('Activity section - test all activity is listed in UI ', async () => {
     jest
       .spyOn(IncidentApi, 'getIncidentDetails')
@@ -64,6 +63,7 @@ describe('Test Incident Details Page', () => {
       screen.getAllByText(`27-05-2021 08:05:78`, { exact: false }).length,
     ).toBe(2);
   });
+
   test('Incident data is populated in form', async () => {
     jest
       .spyOn(IncidentApi, 'getIncidentDetails')

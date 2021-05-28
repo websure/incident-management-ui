@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
-
+/**
+ * Higher order component to log user events
+ */
 const COMPONENT_TYPE = {
   CLICK: 'click',
   NAVIAGTION: 'navigation',

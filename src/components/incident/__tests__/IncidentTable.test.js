@@ -1,11 +1,6 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from '../../../utils/test-utils';
+import { render, screen, waitFor } from '../../../utils/test-utils';
 import IncidentTable from '../IncidentTable';
 import { getIncidentListMockResp } from '../__mocks__/Api';
 import IncidentApi from '../Api';

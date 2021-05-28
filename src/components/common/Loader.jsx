@@ -5,7 +5,6 @@ const TEXT = 'Loading';
 
 const Loader = ({ text = TEXT }) => (
   <SemanticLoader active inline="centered">
-    {' '}
     {text}
   </SemanticLoader>
 );

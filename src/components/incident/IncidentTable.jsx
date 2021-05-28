@@ -1,23 +1,17 @@
-import React, {
-  useEffect,
-  useState,
-  forwardRef,
-  useImperativeHandle,
-  useRef,
-  useReducer,
-} from 'react';
-import { Route, withRouter, Redirect, Link } from 'react-router-dom';
-import {
-  Grid,
-  Segment,
-  Container,
-  Icon,
-  Table,
-  Visibility,
-} from 'semantic-ui-react';
+/**
+ * Smart table
+ * Display incident list in table
+ * Allows API sorting, lazy loading
+ * Handle loading,error and Empty table data
+ * click on row to show details page
+ *
+ */
+import React, { useEffect, useState, useRef } from 'react';
+import { withRouter } from 'react-router-dom';
+import { Table, Visibility } from 'semantic-ui-react';
 import IncidentApi from './Api';
 import useAsync from '../common/hoc/useAsync';
-import { INCIDENT_TYPE, STATUS_COLOR } from './constants';
+import { STATUS_COLOR } from './constants';
 import Loader from '../common/Loader';
 import useTableReload from '../common/hoc/useTableReload';
 
@@ -35,7 +29,7 @@ const IncidentTable = ({ history }) => {
     orderby: 'desc',
   };
 
-  const TableRef = useRef();
+  const TableRef = useRef(null);
   const { reloadTable } = useTableReload();
   const { fetch, loading, data, reset, error } = useAsync();
   const [apiFilter, setApiFilter] = useState(DefaultProps);
@@ -43,6 +37,9 @@ const IncidentTable = ({ history }) => {
   const [tableData, setTableData] = useState({});
   const [sorting, setSorting] = useState({ direction: null, column: null });
 
+  /**
+   * Construct table data
+   */
   const constructTableData = (list = [], newFetch = false) => {
     const { data: previousData = [] } = tableData;
     const tblData = newFetch ? list : [...previousData, ...list];
@@ -50,7 +47,9 @@ const IncidentTable = ({ history }) => {
       data: tblData,
     });
   };
-
+  /**
+   * Process params and fetch Data for table.
+   */
   const fetchTableData = (newFilter = {}, newFetch = false) => {
     const params = {
       ...DefaultProps,
@@ -66,28 +65,24 @@ const IncidentTable = ({ history }) => {
       );
     }
   };
+
   useEffect(() => {
     fetchTableData();
   }, []);
 
   useEffect(() => {
-    if (reloadTable) fetchTableData({}, true);
+    fetchTableData({}, true);
   }, [reloadTable]);
-
-  useEffect(() => {
-    console.log('sorting useEffect   ', sorting);
-  }, [sorting]);
 
   const setFilter = (sortby) => {
     const { direction } = sorting;
     const orderby = direction === 'asc' ? 'desc' : 'asc';
-
-    console.log('setFilter ', sorting);
     setSorting({ column: sortby, direction: orderby });
-    // resetTable();
     fetchTableData({ sortby, orderby }, true);
   };
-
+  /**
+   * handle lazy loading
+   */
   const handleUpdate = (e, { calculations }) => {
     const { direction, bottomVisible, topVisible } = calculations;
     if (
@@ -113,9 +108,7 @@ const IncidentTable = ({ history }) => {
           key={id}
           id={id}
           ref={TableRef}
-          onClick={(e, x) =>
-            history.push(`/incident/${e.target.parentNode.id}`)
-          }
+          onClick={(e) => history.push(`/incident/${e.target.parentNode.id}`)}
         >
           <Table.Cell>{type.toUpperCase()}</Table.Cell>
           <Table.Cell

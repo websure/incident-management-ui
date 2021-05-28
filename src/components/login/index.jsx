@@ -1,26 +1,12 @@
-import React, {
-  useEffect,
-  useState,
-  forwardRef,
-  useImperativeHandle,
-  useRef,
-  useContext,
-} from 'react';
-import {
-  Grid,
-  Button,
-  Modal,
-  Message,
-  Confirm,
-  Segment,
-} from 'semantic-ui-react';
-import { Route, withRouter, Redirect } from 'react-router-dom';
-import {
-  Form,
-  Input,
-  Dropdown,
-  TextArea,
-} from 'semantic-ui-react-form-validator';
+/**
+ * Login page
+ * On success - save details in session storage
+ * On success - Redirects to incident list page
+ */
+import React, { useEffect, useState } from 'react';
+import { Grid, Button, Message, Segment } from 'semantic-ui-react';
+import { withRouter } from 'react-router-dom';
+import { Form, Input } from 'semantic-ui-react-form-validator';
 
 import useAsync from '../common/hoc/useAsync';
 import UserApi from './Api';
@@ -35,6 +21,9 @@ const Login = ({ history }) => {
   };
 
   useEffect(() => {
+    /**
+     * save user details in session storage
+     */
     if (data && Object.keys(data).length > 0) {
       sessionStorage.setItem('currentUser', JSON.stringify(data));
       sessionStorage.setItem('token', data.token);
@@ -43,7 +32,6 @@ const Login = ({ history }) => {
   }, [data]);
 
   const handleChange = ({ name, value }) => {
-    // error && reset()
     setFormDetails({
       ...formDetails,
       [name]: value,
@@ -112,37 +100,6 @@ const Login = ({ history }) => {
                 Login
               </Button>
             </Form>
-            {/* <Form onSubmit={submit}>
-              <Form.Input
-                fluid
-                label="User Name"
-                placeholder="User Name"
-                name="userid"
-                onChange={(e, val) => handleChange(val)}
-              />
-              <Form.Input
-                fluid
-                name="password"
-                type="password"
-                label="Password"
-                onChange={(e, val) => handleChange(val)}
-                placeholder="Password"
-              />
-
-              <Button
-                type="submit"
-                primary
-                compact
-                loading={loading}
-                style={{
-                  display: 'table',
-                  marginRight: 'auto',
-                  marginLeft: 'auto',
-                }}
-              >
-                Login
-              </Button>
-            </Form> */}
           </Segment>
         </Grid.Column>
       </Grid.Row>

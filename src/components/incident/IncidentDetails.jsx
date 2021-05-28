@@ -1,11 +1,8 @@
-import React, {
-  useEffect,
-  useState,
-  forwardRef,
-  useImperativeHandle,
-  useRef,
-  useContext,
-} from 'react';
+/**
+ * Show Incident details, activities
+ * User can do - Delete, Update actions
+ */
+import React, { useEffect, useState, useContext } from 'react';
 import moment from 'moment';
 import { Grid, Segment, Container, Icon, Message } from 'semantic-ui-react';
 import { Route, withRouter, Redirect } from 'react-router-dom';
@@ -26,9 +23,8 @@ const IncidentDetails = (props) => {
   const { updateData } = useContext(AppStateContext);
 
   const [activity, setActivity] = useState([]);
-  const [showSuccessMsg, setShowSuccessMsg] = useState(false);
   const [data, setData] = useState(asyncData);
-
+  console.log('details  ', props);
   const { id } = match?.params;
   useEffect(() => {
     if (id) {
@@ -42,7 +38,6 @@ const IncidentDetails = (props) => {
 
   useEffect(() => {
     if (data && Object.keys(data).length > 0) {
-      // console.log('------data  ', data);
       const {
         incident_assignee: assigneeActivity,
         incident_status: statusActivity,
@@ -70,6 +65,9 @@ const IncidentDetails = (props) => {
   }, [data]);
 
   const updateValues = (values) => {
+    /**
+     * Update incident
+     */
     const { acknowledge, assignee, description, status, title, type } = values;
 
     fetch(
@@ -92,8 +90,8 @@ const IncidentDetails = (props) => {
     );
   };
 
-  const deleteIncident = () => {
-    IncidentApi.deleteIncident(data.id).then((res) => {
+  const deleteIncident = (delId) => {
+    IncidentApi.deleteIncident(delId).then((res) => {
       updateData({
         successMsg: {
           msg: DELETE_MSG,

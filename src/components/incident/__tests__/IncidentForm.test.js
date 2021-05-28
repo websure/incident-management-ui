@@ -1,11 +1,11 @@
 import React from 'react';
-import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../../utils/test-utils';
 import IncidentForm from '../IncidentForm';
 import { IncidentDetailsMockResp } from '../__mocks__/Api';
 
 /**
- * TODO : Testing for Acknowledge control. Pending for other controls.
+ * DONE : Testing for Acknowledge control.
+ * TODO : Pending for other controls.
  */
 describe('Test Incident Form component', () => {
   test('Incident form is rendered ', () => {
@@ -16,7 +16,7 @@ describe('Test Incident Form component', () => {
   });
 
   test('Test form controls - ACKNOWLEDGE ', () => {
-    const { container } = render(<IncidentForm />);
+    render(<IncidentForm />);
     expect(
       screen.getByText('Acknowledge', { exact: false }),
     ).toBeInTheDocument();

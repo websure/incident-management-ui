@@ -23,12 +23,9 @@ instance.interceptors.request.use(
 );
 
 instance.interceptors.response.use(
-  (response) => {
+  (response) =>
     /* Add logic to play with response */
-    console.log('response ', response.data);
-    return response.data;
-  },
-
+    response.data,
   (error) => Promise.reject(error.response.data),
 );
 

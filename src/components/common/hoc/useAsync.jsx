@@ -18,10 +18,8 @@ const useAsync = () => {
   const fetch = (async) => {
     setLoading(true);
     async
-      .then((res) => {
-        if (res) {
-          setData(res);
-        }
+      .then((res = {}) => {
+        setData(res);
       })
       .catch((e) => setError(e))
       .finally(() => setLoading(false));

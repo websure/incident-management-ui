@@ -1,6 +1,11 @@
+/**
+ * Show the header of the Dashboard
+ * Includes heading, create Incident button and logout
+ */
+
 import React, { useState, useRef, useContext, useEffect } from 'react';
 import { Grid, Button, Modal, Form, Icon, Message } from 'semantic-ui-react';
-import { Route, withRouter, Redirect, Link } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import IncidentForm from './IncidentForm';
 import IncidentApi from './Api';
 import useAsync from '../common/hoc/useAsync';
@@ -9,16 +14,19 @@ import { AppStateContext } from '../../store/AppStore';
 
 const MsgTxt = 'Incident created successfully';
 
-const Header = ({ history, location, match }) => {
+const Header = ({ history }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [showSuccessMsg, setShowSuccessMsg] = useState(false);
   const [infoMsg, setInfoMsg] = useState(MsgTxt);
   const FormRef = useRef(null);
   const { StoreData, updateData } = useContext(AppStateContext);
   const { successMsg, errorMsg } = StoreData;
-
   const { fetch, loading, data, reset, error } = useAsync();
   const { updateTableState } = useTableReload();
+
+  let currUSer = sessionStorage.getItem('currentUser') || null;
+  currUSer = JSON.parse(currUSer);
+  const isAdmin = currUSer?.userid === 'admin';
 
   useEffect(() => {
     const { msg, show: ShowSuccessInfo } = successMsg;
@@ -29,6 +37,9 @@ const Header = ({ history, location, match }) => {
   }, [successMsg, errorMsg]);
 
   const closeMessInfo = () => {
+    /**
+     * close feedback message and update the context state
+     */
     setTimeout(() => {
       updateData({
         successMsg: {
@@ -51,6 +62,9 @@ const Header = ({ history, location, match }) => {
   };
 
   const formValues = (values) => {
+    /**
+     * Update incident
+     */
     fetch(
       IncidentApi.createIncident(values).then(() => {
         closePopup();
@@ -66,6 +80,9 @@ const Header = ({ history, location, match }) => {
   };
 
   const logout = () => {
+    /**
+     * clear session and redirect to login page
+     */
     sessionStorage.clear();
     history.push('/login');
   };
@@ -93,17 +110,20 @@ const Header = ({ history, location, match }) => {
             )}
           </h4>
         </Grid.Column>
-        <Grid.Column floated="right" width={3}>
-          <Button
-            primary
-            floated="right"
-            compact
-            title="Create Incident"
-            onClick={() => setShowPopup(true)}
-          >
-            Create Incident
-          </Button>
-        </Grid.Column>
+        {isAdmin && (
+          <Grid.Column floated="right" width={3}>
+            <Button
+              primary
+              floated="right"
+              compact
+              title="Create Incident"
+              onClick={() => setShowPopup(true)}
+            >
+              Create Incident
+            </Button>
+          </Grid.Column>
+        )}
+
         <Grid.Column floated="right" width={1}>
           <Icon
             color="red"
